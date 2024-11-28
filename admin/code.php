@@ -140,47 +140,74 @@ if (isset($_POST['saveSupplier'])) {
     }
 }
 
+// // Update Supplier
+// if (isset($_POST['updateSupplier'])) {
+//     $supplierId = validate($_POST['supplierId']);
+
+//     $supplierData = getById('suppliers', $supplierId);
+
+//     if ($supplierData['status'] != 200) {
+//         $_SESSION['message'] = 'Invalid Supplier ID.';
+//         header('Location: suppliers.php');
+//         exit();
+//     }
+
+//     $firstname = validate($_POST['firstname']);
+//     $lastname = validate($_POST['lastname']);
+//     $phonenumber = validate($_POST['phonenumber']);
+//     $address = validate($_POST['address']);
+
+//     if ($firstname != '' && $lastname != '' && $phonenumber != '' && $address != '') {
+//         $data = [
+//             'firstname' => $firstname,
+//             'lastname' => $lastname,
+//             'phonenumber' => $phonenumber,
+//             'address' => $address
+//         ];
+
+//         $result = update('suppliers', $supplierId, $data);
+//         if ($result) {
+//             $_SESSION['message'] = 'Supplier updated successfully.';
+//             header('Location: suppliers.php');
+//             exit();
+//         } else {
+//             $_SESSION['message'] = 'Something went wrong.';
+//             header('Location: suppliers.php');
+//             exit();
+//         }
+//     } else {
+//         $_SESSION['message'] = 'Please fill required fields.';
+//         header('Location: suppliers-edit.php?id=' . $supplierId);
+//         exit();
+//     }
+// }
+
+// Update Suppliers
 // Update Supplier
 if (isset($_POST['updateSupplier'])) {
-    $supplierId = validate($_POST['supplierId']);
+    $supplierId = $_POST['supplierId'];
+    $firstname = $_POST['firstname'];
+    $lastname = $_POST['lastname'];
+    $phonenumber = $_POST['phonenumber'];
+    $address = $_POST['address'];
+    $status = $_POST['status'];
 
-    $supplierData = getById('suppliers', $supplierId);
+    $query = "UPDATE suppliers SET firstname = ?, lastname = ?, phonenumber = ?, address = ?, status = ? WHERE id = ?";
+    $stmt = $conn->prepare($query);
+    $stmt->bind_param("sssssi", $firstname, $lastname, $phonenumber, $address, $status, $supplierId);
 
-    if ($supplierData['status'] != 200) {
-        $_SESSION['message'] = 'Invalid Supplier ID.';
-        header('Location: suppliers.php');
-        exit();
-    }
-
-    $firstname = validate($_POST['firstname']);
-    $lastname = validate($_POST['lastname']);
-    $phonenumber = validate($_POST['phonenumber']);
-    $address = validate($_POST['address']);
-
-    if ($firstname != '' && $lastname != '' && $phonenumber != '' && $address != '') {
-        $data = [
-            'firstname' => $firstname,
-            'lastname' => $lastname,
-            'phonenumber' => $phonenumber,
-            'address' => $address
-        ];
-
-        $result = update('suppliers', $supplierId, $data);
-        if ($result) {
-            $_SESSION['message'] = 'Supplier updated successfully.';
-            header('Location: suppliers.php');
-            exit();
-        } else {
-            $_SESSION['message'] = 'Something went wrong.';
-            header('Location: suppliers.php');
-            exit();
-        }
+    if ($stmt->execute()) {
+        $_SESSION['message'] = "Supplier updated successfully";
+        $_SESSION['message_type'] = "success";
     } else {
-        $_SESSION['message'] = 'Please fill required fields.';
-        header('Location: suppliers-edit.php?id=' . $supplierId);
-        exit();
+        $_SESSION['message'] = "Failed to update supplier";
+        $_SESSION['message_type'] = "danger";
     }
+
+    header("Location: suppliers.php");
+    exit();
 }
+
 
 
 // suppliers + ingredients
